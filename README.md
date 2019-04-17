@@ -25,4 +25,10 @@ If considering denosing on compressed images,
 
 ![](figs/results.png)
 
-# TODO
+# Quick Start
+
+Use followed command:
+
+```
+python train.py
+```
