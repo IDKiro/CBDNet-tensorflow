@@ -15,7 +15,7 @@ input_dir = 'dataset/train/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 
-LEVEL = 10
+LEVEL = 5
 save_freq = 100
 
 CRF = scipy.io.loadmat('matdata/201_CRF_data.mat')
@@ -40,7 +40,7 @@ origin_imgs = [None] * len(train_fns)
 noise_imgs = [None] * len(train_fns)
 
 for i in range(len(train_fns)):
-    origin_imgs[i] = None
+    origin_imgs[i] = []
     noise_imgs[i] = []
 
 # model setting
@@ -84,7 +84,7 @@ for epoch in range(lastepoch, 2001):
     for ind in np.random.permutation(len(train_fns)):
         train_fn = train_fns[ind]
 
-        if origin_imgs[ind] == None:
+        if not len(origin_imgs[ind]):
             origin_img = cv2.imread(train_fn)
             origin_img = origin_img[:,:,::-1] / 255.0
             origin_img = np.array(origin_img).astype('float32')
