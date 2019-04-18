@@ -1,12 +1,12 @@
 # CBDNet-tensorflow 
 
-A unofficial implementation of CBDNet by Tensorflow.
+An unofficial implementation of CBDNet by Tensorflow.
 
 [CBDNet in MATLAB](https://github.com/GuoShi28/CBDNet)
 
 ## Network Structure
 
-![Image of Network](figs/CBDNet_v13.png)
+![Image of Network](imgs/CBDNet_v13.png)
 
 ## Realistic Noise Model
 Given a clean image `x`, the realistic noise model can be represented as:
@@ -23,7 +23,7 @@ If considering denosing on compressed images,
 
 # Result
 
-![](figs/results.png)
+![](imgs/results.png)
 
 # Quick Start
 

@@ -18,19 +18,19 @@ result_dir = './result/'
 LEVEL = 5
 save_freq = 100
 
-CRF = scipy.io.loadmat('data_mat/201_CRF_data.mat')
-iCRF = scipy.io.loadmat('data_mat/dorfCurvesInv.mat')
+CRF = scipy.io.loadmat('matdata/201_CRF_data.mat')
+iCRF = scipy.io.loadmat('matdata/dorfCurvesInv.mat')
 B_gl = CRF['B']
 I_gl = CRF['I']
 B_inv_gl = iCRF['invB']
 I_inv_gl = iCRF['invI']
 
-if os.path.exists('data_mat/201_CRF_iCRF_function.mat')==0:
+if os.path.exists('matdata/201_CRF_iCRF_function.mat')==0:
     CRF_para = np.array(CRF_function_transfer(I_gl, B_gl))
     iCRF_para = 1. / CRF_para
-    scipy.io.savemat('data_mat/201_CRF_iCRF_function.mat', {'CRF':CRF_para, 'iCRF':iCRF_para})
+    scipy.io.savemat('matdata/201_CRF_iCRF_function.mat', {'CRF':CRF_para, 'iCRF':iCRF_para})
 else:
-    Bundle = scipy.io.loadmat('data_mat/201_CRF_iCRF_function.mat')
+    Bundle = scipy.io.loadmat('matdata/201_CRF_iCRF_function.mat')
     CRF_para = Bundle['CRF']
     iCRF_para = Bundle['iCRF']
 
