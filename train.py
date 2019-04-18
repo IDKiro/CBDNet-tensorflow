@@ -15,7 +15,7 @@ input_dir = 'dataset/train/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 
-LEVEL = 5
+LEVEL = 10
 save_freq = 100
 
 CRF = scipy.io.loadmat('matdata/201_CRF_data.mat')
@@ -40,7 +40,7 @@ origin_imgs = [None] * len(train_fns)
 noise_imgs = [None] * len(train_fns)
 
 for i in range(len(train_fns)):
-    origin_imgs[i] = []
+    origin_imgs[i] = None
     noise_imgs[i] = []
 
 # model setting
@@ -52,7 +52,7 @@ out_image = CBDNet(in_image)
 G_loss = tf.losses.mean_squared_error(gt_image, out_image)
 lr = tf.placeholder(tf.float32)
 G_opt = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss)
-# t_vars = tf.trainable_variables()
+t_vars = tf.trainable_variables()
 
 # load model
 sess = tf.Session()
@@ -73,25 +73,28 @@ for point in allpoint:
     lastepoch = np.maximum(lastepoch, int(cur_epoch[0]))
 
 learning_rate = 1e-4
-for epoch in range(lastepoch, 4001):
+for epoch in range(lastepoch, 2001):
     if os.path.isdir(result_dir+"%04d"%epoch):
         continue    
     cnt=0
     
-    if epoch > 2000:
+    if epoch > 1000:
         learning_rate = 1e-5
 
     for ind in np.random.permutation(len(train_fns)):
         train_fn = train_fns[ind]
 
-        if len(origin_imgs[ind]) < LEVEL:
+        if origin_imgs[ind] == None:
             origin_img = cv2.imread(train_fn)
             origin_img = origin_img[:,:,::-1] / 255.0
             origin_img = np.array(origin_img).astype('float32')
+            origin_imgs[ind] = np.expand_dims(origin_img, axis = 0)
 
-            origin_imgs[ind] = []
+        # re-add noise
+        if epoch % save_freq == 0:
             noise_imgs[ind] = []
 
+        if len(noise_imgs[ind]) < LEVEL:
             for noise_i in range(LEVEL):
                 sigma_s = np.random.uniform(0.0, 0.16, (3,))
                 sigma_c = np.random.uniform(0.0, 0.06, (3,))
@@ -99,13 +102,11 @@ for epoch in range(lastepoch, 4001):
                 pattern = np.random.choice(4) + 1
 
                 noise_img = AddNoiseMosai(origin_img, CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl, sigma_s, sigma_c, CRF_index, pattern, 0)
-
-                origin_imgs[ind].append(np.expand_dims(origin_img, axis = 0))
                 noise_imgs[ind].append(np.expand_dims(noise_img, axis = 0))
 
         st = time.time()
-        for nind in np.random.permutation(len(origin_imgs[ind])):
-            temp_origin_img = origin_imgs[ind][nind]
+        for nind in np.random.permutation(len(noise_imgs[ind])):
+            temp_origin_img = origin_imgs[ind]
             temp_noise_img = noise_imgs[ind][nind]
             if np.random.randint(2, size=1)[0] == 1:
                 temp_origin_img = np.flip(temp_origin_img, axis=1)
@@ -126,14 +127,14 @@ for epoch in range(lastepoch, 4001):
             g_loss[ind] = G_current
 
             if cnt % LEVEL == 0:
-                print("%d %d Loss=%.4f Time=%.3f"%(epoch, cnt, np.mean(g_loss[np.where(g_loss)]), time.time()-st))
+                print("%d %d Loss=%.5f Time=%.3f"%(epoch, cnt, np.mean(g_loss[np.where(g_loss)]), time.time()-st))
 
-            if epoch%save_freq==0:
+            if epoch % save_freq == 0:
                 if not os.path.isdir(result_dir + '%04d'%epoch):
                     os.makedirs(result_dir + '%04d'%epoch)
 
                 temp = np.concatenate((temp_origin_img[0, :, :, :], temp_noise_img[0, :, :, :], output[0, :, :, :]), axis=1)
-                scipy.misc.toimage(temp*255, high=255, low=0, cmin=0, cmax=255).save(result_dir + '%04d/train_%d.jpg'%(epoch, ind))
+                scipy.misc.toimage(temp*255, high=255, low=0, cmin=0, cmax=255).save(result_dir + '%04d/train_%d_%d.jpg'%(epoch, ind, nind))
     
     saver.save(sess, checkpoint_dir + 'model.ckpt')
 
