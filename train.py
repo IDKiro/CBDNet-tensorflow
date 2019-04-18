@@ -88,7 +88,7 @@ for epoch in range(lastepoch, 2001):
             origin_img = cv2.imread(train_fn)
             origin_img = origin_img[:,:,::-1] / 255.0
             origin_img = np.array(origin_img).astype('float32')
-            origin_imgs[ind] = np.expand_dims(origin_img, axis = 0)
+            origin_imgs[ind] = np.expand_dims(origin_img, axis=0)
 
         # re-add noise
         if epoch % save_freq == 0:
@@ -102,7 +102,7 @@ for epoch in range(lastepoch, 2001):
                 pattern = np.random.choice(4) + 1
 
                 noise_img = AddNoiseMosai(origin_img, CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl, sigma_s, sigma_c, CRF_index, pattern, 0)
-                noise_imgs[ind].append(np.expand_dims(noise_img, axis = 0))
+                noise_imgs[ind].append(np.expand_dims(noise_img, axis=0))
 
         st = time.time()
         for nind in np.random.permutation(len(noise_imgs[ind])):
@@ -122,7 +122,7 @@ for epoch in range(lastepoch, 2001):
             if cnt % LEVEL == 1:
                 st = time.time()
 
-            _, G_current, output=sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, lr:learning_rate})
+            _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, lr:learning_rate})
             output = np.minimum(np.maximum(output, 0), 1)
             g_loss[ind] = G_current
 

@@ -27,8 +27,14 @@ If considering denosing on compressed images,
 
 # Quick Start
 
-Use followed command:
+Use followed command to train the model:
 
 ```
 python train.py
+```
+
+Use followed command to test the pretrained model:
+
+```
+python test.py
 ```

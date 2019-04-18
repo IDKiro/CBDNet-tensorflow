@@ -1,6 +1,5 @@
 # Add by user
 .vscode/
-model.ckpt*
 result/
 
 # Byte-compiled / optimized / DLL files
