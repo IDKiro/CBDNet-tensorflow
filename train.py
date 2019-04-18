@@ -98,7 +98,7 @@ for epoch in range(lastepoch, 4001):
                 CRF_index = np.random.choice(201)
                 pattern = np.random.choice(4) + 1
 
-                noise_img = AddNoiseMosai(origin_img, CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl, sigma_s, sigma_c, CRF_index, pattern, 0)  #mode 0: without difference
+                noise_img = AddNoiseMosai(origin_img, CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl, sigma_s, sigma_c, CRF_index, pattern, 0)
 
                 origin_imgs[ind].append(np.expand_dims(origin_img, axis = 0))
                 noise_imgs[ind].append(np.expand_dims(noise_img, axis = 0))
@@ -107,13 +107,13 @@ for epoch in range(lastepoch, 4001):
         for nind in np.random.permutation(len(origin_imgs[ind])):
             temp_origin_img = origin_imgs[ind][nind]
             temp_noise_img = noise_imgs[ind][nind]
-            if np.random.randint(2, size=1)[0] == 1:  # random flip 
+            if np.random.randint(2, size=1)[0] == 1:
                 temp_origin_img = np.flip(temp_origin_img, axis=1)
                 temp_noise_img = np.flip(temp_noise_img, axis=1)
             if np.random.randint(2, size=1)[0] == 1: 
                 temp_origin_img = np.flip(temp_origin_img, axis=0)
                 temp_noise_img = np.flip(temp_noise_img, axis=0)
-            if np.random.randint(2, size=1)[0] == 1:  # random transpose 
+            if np.random.randint(2, size=1)[0] == 1:
                 temp_origin_img = np.transpose(temp_origin_img, (0, 2, 1, 3))
                 temp_noise_img = np.transpose(temp_noise_img, (0, 2, 1, 3))
             
