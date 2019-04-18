@@ -101,7 +101,7 @@ for epoch in range(lastepoch, 2001):
                 CRF_index = np.random.choice(201)
                 pattern = np.random.choice(4) + 1
 
-                noise_img = AddNoiseMosai(origin_img, CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl, sigma_s, sigma_c, CRF_index, pattern, 0)
+                noise_img = AddNoiseMosai(origin_imgs[ind][0, :, :, :], CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl, sigma_s, sigma_c, CRF_index, pattern, 0)
                 noise_imgs[ind].append(np.expand_dims(noise_img, axis=0))
 
         st = time.time()
