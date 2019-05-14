@@ -11,7 +11,7 @@ import cv2
 from utils import *
 from model import *
 
-input_dir = 'dataset/synthetic/test/'
+input_dir = 'dataset/synthetic/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 
@@ -35,7 +35,7 @@ test_fns = glob.glob(input_dir + '*.jpg')
 
 # model setting
 in_image = tf.placeholder(tf.float32, [None, None, None, 3])
-out_image = CBDNet(in_image)
+_, out_image = CBDNet(in_image)
 
 # load model
 sess = tf.Session()
