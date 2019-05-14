@@ -92,7 +92,7 @@ for epoch in range(lastepoch, 2001):
             H = origin_imgs[ind].shape[1]
             W = origin_imgs[ind].shape[2]
 
-            ps_temp = min(H, W, ps)
+            ps_temp = min(H, W, ps) - 1
 
             xx = np.random.randint(0, W-ps_temp)
             yy = np.random.randint(0, H-ps_temp)
