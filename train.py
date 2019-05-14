@@ -11,7 +11,7 @@ import cv2
 from utils import *
 from model import *
 
-input_dir = 'dataset/train/'
+input_dir = 'dataset/synthetic/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 
@@ -46,10 +46,14 @@ for i in range(len(train_fns)):
 # model setting
 in_image = tf.placeholder(tf.float32, [None, None, None, 3])
 gt_image = tf.placeholder(tf.float32, [None, None, None, 3])
+gt_noise = tf.placeholder(tf.float32, [None, None, None, 3])
 
-out_image = CBDNet(in_image)
+est_noise, out_image = CBDNet(in_image)
 
-G_loss = tf.losses.mean_squared_error(gt_image, out_image)
+G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
+        0.5 * tf.reduce_mean(tf.multiply(tf.abs(0.3 - tf.nn.relu(gt_noise - est_noise)), tf.square(est_noise - gt_noise))) + \
+        0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
+
 lr = tf.placeholder(tf.float32)
 G_opt = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss)
 t_vars = tf.trainable_variables()
@@ -118,11 +122,13 @@ for epoch in range(lastepoch, 2001):
                 temp_origin_img = np.transpose(temp_origin_img, (0, 2, 1, 3))
                 temp_noise_img = np.transpose(temp_noise_img, (0, 2, 1, 3))
             
+            noise_level = temp_noise_img - temp_origin_img
+
             cnt += 1
             if cnt % LEVEL == 1:
                 st = time.time()
 
-            _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, lr:learning_rate})
+            _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
             output = np.minimum(np.maximum(output, 0), 1)
             g_loss[ind] = G_current
 

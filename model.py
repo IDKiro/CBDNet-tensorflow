@@ -66,8 +66,8 @@ def UNet(input):
         return out
 
 def CBDNet(input):
-    noise_img = FCN(input)
-    concat_img = tf.concat([input, noise_img], 3)
+    noise_level = FCN(input)
+    concat_img = tf.concat([input, noise_level], 3)
     out = UNet(concat_img)
 
-    return out
+    return noise_level, out
