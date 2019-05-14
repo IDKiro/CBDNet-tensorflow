@@ -4,15 +4,25 @@ An unofficial implementation of CBDNet by Tensorflow.
 
 [CBDNet in MATLAB](https://github.com/GuoShi28/CBDNet)
 
-# Quick Start
+## Quick Start
 
-Use followed command to train the model:
+Download the [dataset](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ec0R2eTtC81Is0KvC5mbomsBd2Pe9hxDZ-KWX290yNWsCA?e=xDw7Rq) and pretrained [model](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ea3PPzHJWi9LqrNvoMhUZA4BPZr2Md5lEMELpu4Y7OPpbw?e=xpcdi0) and decompression the files to `dataset` and `checkpoint` folder as follow:
+
+![](imgs/folder.png)
+
+Train the model on synthetic noisy images :
 
 ```
-python train.py
+python train_syn.py
 ```
 
-Use followed command to test the pretrained model:
+Train the model on real noisy images:
+
+```
+python train_real.py
+```
+
+Test the trained model on DND dataset:
 
 ```
 python test.py

@@ -11,11 +11,11 @@ import cv2
 from utils import *
 from model import *
 
-input_dir = 'dataset/synthetic/'
+input_dir = './dataset/synthetic/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 
-LEVEL = 5
+LEVEL = 1
 save_freq = 100
 
 CRF = scipy.io.loadmat('matdata/201_CRF_data.mat')
@@ -34,7 +34,7 @@ else:
     CRF_para = Bundle['CRF']
     iCRF_para = Bundle['iCRF']
 
-train_fns = glob.glob(input_dir + '*.jpg')
+train_fns = glob.glob(input_dir + '*.bmp')
 
 origin_imgs = [None] * len(train_fns)
 noise_imgs = [None] * len(train_fns)
@@ -77,12 +77,12 @@ for point in allpoint:
     lastepoch = np.maximum(lastepoch, int(cur_epoch[0]))
 
 learning_rate = 1e-4
-for epoch in range(lastepoch, 2001):
+for epoch in range(lastepoch, 1001):
     if os.path.isdir(result_dir+"%04d"%epoch):
         continue    
     cnt=0
     
-    if epoch > 1000:
+    if epoch > 500:
         learning_rate = 1e-5
 
     for ind in np.random.permutation(len(train_fns)):
