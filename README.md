@@ -4,6 +4,20 @@ An unofficial implementation of CBDNet by Tensorflow.
 
 [CBDNet in MATLAB](https://github.com/GuoShi28/CBDNet)
 
+# Quick Start
+
+Use followed command to train the model:
+
+```
+python train.py
+```
+
+Use followed command to test the pretrained model:
+
+```
+python test.py
+```
+
 ## Network Structure
 
 ![Image of Network](imgs/CBDNet_v13.png)
@@ -24,17 +38,3 @@ If considering denosing on compressed images,
 # Result
 
 ![](imgs/results.png)
-
-# Quick Start
-
-Use followed command to train the model:
-
-```
-python train.py
-```
-
-Use followed command to test the pretrained model:
-
-```
-python test.py
-```
