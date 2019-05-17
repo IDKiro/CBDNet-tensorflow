@@ -45,6 +45,6 @@ If considering denosing on compressed images,
 
 ![](http://latex.codecogs.com/gif.latex?\\textbf{y}=JPEG(f(\\textbf{DM}(\\textbf{L}+n(\\textbf{L})))))
 
-# Result
+## Result
 
 ![](imgs/results.png)
