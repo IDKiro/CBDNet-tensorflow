@@ -47,7 +47,7 @@ if __name__ == '__main__':
     checkpoint_dir = './checkpoint/'
     result_dir = './result/'
 
-    ps = 1024
+    PS = 1024
     save_freq = 100
 
     train_fns = glob.glob(input_dir + 'Batch_*')
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         print('loaded', checkpoint_dir)
         saver.restore(sess, ckpt.model_checkpoint_path)
 
-    allpoint = glob.glob(checkpoint_dir+'epoch-*')
+    allpoint = glob.glob(checkpoint_dir + 'epoch-*')
     lastepoch = 0
     for point in allpoint:
         cur_epoch = re.findall(r'epoch-(\d+)', point)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
                 H = origin_imgs[ind].shape[1]
                 W = origin_imgs[ind].shape[2]
 
-                ps_temp = min(H, W, ps) - 1
+                ps_temp = min(H, W, PS) - 1
 
                 xx = np.random.randint(0, W-ps_temp)
                 yy = np.random.randint(0, H-ps_temp)
@@ -130,10 +130,10 @@ if __name__ == '__main__':
                 st = time.time()
 
                 _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
-                output = np.minimum(np.maximum(output, 0), 1)
+                output = np.clip(output, 0, 1)
                 losses.update(G_current)
 
-                print("%d %d Loss=%.5f Time=%.3f"%(epoch, cnt, losses.avg, time.time()-st))
+                print("%d %d Loss=%.4f Time=%.3f"%(epoch, cnt, losses.avg, time.time()-st))
 
                 if epoch % save_freq == 0:
                     if not os.path.isdir(result_dir + '%04d'%epoch):

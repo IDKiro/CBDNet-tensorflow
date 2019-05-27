@@ -44,7 +44,7 @@ for ind, test_fn in enumerate(test_fns):
     temp_noisy_img = np.expand_dims(noisy_img, axis=0)
 
     output = sess.run(out_image, feed_dict={in_image:temp_noisy_img})
-    output = np.minimum(np.maximum(output, 0), 1)
+    output = np.clip(output, 0, 1)
 
     temp = np.concatenate((temp_noisy_img[0, :, :, :], output[0, :, :, :]), axis=1)
     scipy.misc.toimage(temp*255, high=255, low=0, cmin=0, cmax=255).save(result_dir + 'test/test_%d.jpg'%(ind))

@@ -62,22 +62,33 @@ def DataAugmentation(temp_origin_img, temp_noise_img):
 
 
 if __name__ == '__main__':
-    input_dir = './dataset/synthetic/'
+    input_syn_dir = './dataset/synthetic/'
+    input_real_dir = './dataset/real/'
     checkpoint_dir = './checkpoint/'
     result_dir = './result/'
 
+    PS = 512
+    REAPET = 10
     save_freq = 100
 
     CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl = load_CRF()
 
-    train_fns = glob.glob(input_dir + '*.bmp')
+    train_syn_fns = glob.glob(input_syn_dir + '*.bmp')
+    train_real_fns = glob.glob(input_real_dir + 'Batch_*')
 
-    origin_imgs = [None] * len(train_fns)
-    noise_imgs = [None] * len(train_fns)
+    origin_syn_imgs = [None] * len(train_syn_fns)
+    noise_syn_imgs = [None] * len(train_syn_fns)
 
-    for i in range(len(train_fns)):
-        origin_imgs[i] = []
-        noise_imgs[i] = []
+    origin_real_imgs = [None] * len(train_real_fns)
+    noise_real_imgs = [None] * len(train_real_fns)
+
+    for i in range(len(train_syn_fns)):
+        origin_syn_imgs[i] = []
+        noise_syn_imgs[i] = []
+
+    for i in range(len(train_real_fns)):
+        origin_real_imgs[i] = []
+        noise_real_imgs[i] = []
 
     in_image, gt_image, gt_noise, est_noise, out_image, G_loss, lr, G_opt = model_setting()
 
@@ -91,42 +102,43 @@ if __name__ == '__main__':
         print('loaded', checkpoint_dir)
         saver.restore(sess, ckpt.model_checkpoint_path)
 
-    allpoint = glob.glob(checkpoint_dir + 'epoch-*')
+    allpoint = glob.glob(checkpoint_dir+'epoch-*')
     lastepoch = 0
     for point in allpoint:
         cur_epoch = re.findall(r'epoch-(\d+)', point)
         lastepoch = np.maximum(lastepoch, int(cur_epoch[0]))
 
     learning_rate = 1e-4
-    for epoch in range(lastepoch, 301):
+    for epoch in range(lastepoch, 201):
         losses = AverageMeter()
 
         if os.path.isdir(result_dir+"%04d"%epoch):
             continue    
         cnt=0
         
-        if epoch > 150:
+        if epoch > 100:
             learning_rate = 1e-5
 
-        for ind in np.random.permutation(len(train_fns)):
-            train_fn = train_fns[ind]
+        print('Training on synthetic noisy images...')
+        for ind in np.random.permutation(len(train_syn_fns)):
+            train_syn_fn = train_syn_fns[ind]
 
-            if not len(origin_imgs[ind]):
-                origin_img = ReadImg(train_fn)
-                origin_imgs[ind] = np.expand_dims(origin_img, axis=0)
+            if not len(origin_syn_imgs[ind]):
+                origin_syn_img = ReadImg(train_syn_fn)
+                origin_syn_imgs[ind] = np.expand_dims(origin_syn_img, axis=0)
 
             # re-add noise
             if epoch % save_freq == 0:
-                noise_imgs[ind] = []
+                noise_syn_imgs[ind] = []
 
-            if len(noise_imgs[ind]) < 1:
-                noise_img = AddRealNoise(origin_imgs[ind][0, :, :, :], CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl)
-                noise_imgs[ind].append(np.expand_dims(noise_img, axis=0))
+            if len(noise_syn_imgs[ind]) < 1:
+                noise_syn_img = AddRealNoise(origin_syn_imgs[ind][0, :, :, :], CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl)
+                noise_syn_imgs[ind].append(np.expand_dims(noise_syn_img, axis=0))
 
             st = time.time()
-            for nind in np.random.permutation(len(noise_imgs[ind])):
-                temp_origin_img = origin_imgs[ind]
-                temp_noise_img = noise_imgs[ind][nind]
+            for nind in np.random.permutation(len(noise_syn_imgs[ind])):
+                temp_origin_img = origin_syn_imgs[ind]
+                temp_noise_img = noise_syn_imgs[ind][nind]
                 temp_origin_img, temp_noise_img = DataAugmentation(temp_origin_img, temp_noise_img)
                 noise_level = temp_noise_img - temp_origin_img
 
@@ -146,6 +158,53 @@ if __name__ == '__main__':
                     temp = np.concatenate((temp_origin_img[0, :, :, :], temp_noise_img[0, :, :, :], output[0, :, :, :]), axis=1)
                     scipy.misc.toimage(temp*255, high=255, low=0, cmin=0, cmax=255).save(result_dir + '%04d/train_%d_%d.jpg'%(epoch, ind, nind))
         
+        print('Training on real noisy images...')
+        for r in range(REAPET):
+            for ind in np.random.permutation(len(train_real_fns)):
+                train_real_fn = train_real_fns[ind]
+
+                if not len(origin_real_imgs[ind]):
+                    train_real_origin_fns = glob.glob(train_real_fn + '/*Reference.bmp')
+                    train_real_noise_fns = glob.glob(train_real_fn + '/*Noisy.bmp')
+
+                    origin_real_img = ReadImg(train_real_origin_fns[0])
+                    origin_real_imgs[ind] = np.expand_dims(origin_real_img, axis=0)
+
+                    for train_real_noise_fn in train_real_noise_fns:
+                        noise_real_img = ReadImg(train_real_noise_fn)
+                        noise_real_imgs[ind].append(np.expand_dims(noise_real_img, axis=0))
+
+                st = time.time()
+                for nind in np.random.permutation(len(noise_real_imgs[ind])):
+                    H = origin_real_imgs[ind].shape[1]
+                    W = origin_real_imgs[ind].shape[2]
+
+                    ps_temp = min(H, W, PS) - 1
+
+                    xx = np.random.randint(0, W-ps_temp)
+                    yy = np.random.randint(0, H-ps_temp)
+                    
+                    temp_origin_img = origin_real_imgs[ind][:, yy:yy+ps_temp, xx:xx+ps_temp, :]
+                    temp_noise_img = noise_real_imgs[ind][nind][:, yy:yy+ps_temp, xx:xx+ps_temp, :]
+                    temp_origin_img, temp_noise_img = DataAugmentation(temp_origin_img, temp_noise_img)
+                    noise_level = temp_noise_img - temp_origin_img
+
+                    cnt += 1
+                    st = time.time()
+
+                    _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
+                    output = np.clip(output, 0, 1)
+                    losses.update(G_current)
+
+                    print("%d %d Loss=%.4f Time=%.3f"%(epoch, cnt, losses.avg, time.time()-st))
+
+                    if epoch % save_freq == 0:
+                        if not os.path.isdir(result_dir + '%04d'%epoch):
+                            os.makedirs(result_dir + '%04d'%epoch)
+
+                        temp = np.concatenate((temp_origin_img[0, :, :, :], temp_noise_img[0, :, :, :], output[0, :, :, :]), axis=1)
+                        scipy.misc.toimage(temp*255, high=255, low=0, cmin=0, cmax=255).save(result_dir + '%04d/train_%d_%d.jpg'%(epoch, ind + len(train_syn_fns) + r * len(train_real_fns), nind))
+
         saver.save(sess, checkpoint_dir + 'model.ckpt')
 
         if not os.path.isdir(checkpoint_dir + 'epoch-' + str(epoch)):
