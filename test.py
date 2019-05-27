@@ -13,7 +13,7 @@ from model import *
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-input_dir = 'dataset/test/'
+input_dir = './dataset/test/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 

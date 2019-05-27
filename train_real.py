@@ -11,7 +11,7 @@ import cv2
 from utils import *
 from model import *
 
-input_dir = 'dataset/real/'
+input_dir = './dataset/real/'
 checkpoint_dir = './checkpoint/'
 result_dir = './result/'
 
