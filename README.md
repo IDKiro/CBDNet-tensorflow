@@ -8,10 +8,7 @@ An unofficial implementation of CBDNet by Tensorflow.
 
 ## Quick Start
 
-Download the [dataset](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ec0R2eTtC81Is0KvC5mbomsBw2oJ_oV7jahe1srpgVufcQ?e=aFIc7h) and pretrained [model](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ea3PPzHJWi9LqrNvoMhUZA4BzDCmuLCDBaNgk9u-R5h9Kw?e=jSggJw). 
-You also can download these from [Baidu Pan](https://pan.baidu.com/s/1ObvekJcPhtK9RUOC86vmNA) (8ko0) or [Mega](https://mega.nz/#F!uOZEVAYR!fbf-RCtnbUR7mlHZsgiL5g).
-
-Extract the files to `dataset` and `checkpoint` folder as follow:
+Download the [dataset](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ec0R2eTtC81Is0KvC5mbomsBw2oJ_oV7jahe1srpgVufcQ?e=aFIc7h) and extract the files to `dataset` folder as follow:
 
 ![](imgs/folder.png)
 

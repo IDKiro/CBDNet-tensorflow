@@ -20,7 +20,6 @@ def model_setting():
     est_noise, out_image = CBDNet(in_image)
 
     G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
-            0.5 * tf.reduce_mean(tf.multiply(tf.abs(0.3 - tf.nn.relu(gt_noise - est_noise)), tf.square(est_noise - gt_noise))) + \
             0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
 
     lr = tf.placeholder(tf.float32)
@@ -44,8 +43,8 @@ def DataAugmentation(temp_origin_img, temp_noise_img):
 
 if __name__ == '__main__':
     input_dir = './dataset/real/'
-    checkpoint_dir = './checkpoint/'
-    result_dir = './result/'
+    checkpoint_dir = './checkpoint/real/'
+    result_dir = './result/real/'
 
     PS = 1024
     save_freq = 100

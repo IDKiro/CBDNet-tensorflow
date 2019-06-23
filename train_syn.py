@@ -63,8 +63,8 @@ def DataAugmentation(temp_origin_img, temp_noise_img):
 
 if __name__ == '__main__':
     input_dir = './dataset/synthetic/'
-    checkpoint_dir = './checkpoint/'
-    result_dir = './result/'
+    checkpoint_dir = './checkpoint/synthetic/'
+    result_dir = './result/synthetic/'
 
     save_freq = 100
 

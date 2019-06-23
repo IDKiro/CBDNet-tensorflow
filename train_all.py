@@ -38,14 +38,19 @@ def model_setting():
 
     est_noise, out_image = CBDNet(in_image)
 
-    G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
+    G_loss_s = tf.losses.mean_squared_error(gt_image, out_image) + \
             0.5 * tf.reduce_mean(tf.multiply(tf.abs(0.3 - tf.nn.relu(gt_noise - est_noise)), tf.square(est_noise - gt_noise))) + \
             0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
 
-    lr = tf.placeholder(tf.float32)
-    G_opt = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss)
+    G_loss_r = tf.losses.mean_squared_error(gt_image, out_image) + \
+            0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
 
-    return in_image, gt_image, gt_noise, est_noise, out_image, G_loss, lr, G_opt
+    lr = tf.placeholder(tf.float32)
+
+    G_opt_s = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss_s)
+    G_opt_r = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss_r)
+
+    return in_image, gt_image, gt_noise, est_noise, out_image, G_loss_s, G_loss_r, lr, G_opt_s, G_opt_r
 
 def DataAugmentation(temp_origin_img, temp_noise_img):
     if np.random.randint(2, size=1)[0] == 1:
@@ -64,8 +69,8 @@ def DataAugmentation(temp_origin_img, temp_noise_img):
 if __name__ == '__main__':
     input_syn_dir = './dataset/synthetic/'
     input_real_dir = './dataset/real/'
-    checkpoint_dir = './checkpoint/'
-    result_dir = './result/'
+    checkpoint_dir = './checkpoint/all/'
+    result_dir = './result/all/'
 
     PS = 512
     REAPET = 10
@@ -90,7 +95,7 @@ if __name__ == '__main__':
         origin_real_imgs[i] = []
         noise_real_imgs[i] = []
 
-    in_image, gt_image, gt_noise, est_noise, out_image, G_loss, lr, G_opt = model_setting()
+    in_image, gt_image, gt_noise, est_noise, out_image, G_loss_s, G_loss_r, lr, G_opt_s, G_opt_r = model_setting()
 
     # load model
     sess = tf.Session()
@@ -145,7 +150,7 @@ if __name__ == '__main__':
                 cnt += 1
                 st = time.time()
 
-                _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
+                _, G_current, output = sess.run([G_opt_s, G_loss_s, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
                 output = np.clip(output, 0, 1)
                 losses.update(G_current)
 
@@ -192,7 +197,7 @@ if __name__ == '__main__':
                     cnt += 1
                     st = time.time()
 
-                    _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
+                    _, G_current, output = sess.run([G_opt_r, G_loss_r, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
                     output = np.clip(output, 0, 1)
                     losses.update(G_current)
 
