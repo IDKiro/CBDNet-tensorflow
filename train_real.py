@@ -46,7 +46,7 @@ if __name__ == '__main__':
     checkpoint_dir = './checkpoint/real/'
     result_dir = './result/real/'
 
-    PS = 1024
+    PS = 512                                    # patch size, if your GPU memory is not enough, modify it
     save_freq = 100
 
     train_fns = glob.glob(input_dir + 'Batch_*')

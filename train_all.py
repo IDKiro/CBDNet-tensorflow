@@ -72,7 +72,7 @@ if __name__ == '__main__':
     checkpoint_dir = './checkpoint/all/'
     result_dir = './result/all/'
 
-    PS = 512
+    PS = 512                            # patch size, if your GPU memory is not enough, modify it
     REAPET = 10
     save_freq = 100
 

@@ -8,6 +8,8 @@ An unofficial implementation of CBDNet by Tensorflow.
 
 ## Quick Start
 
+### Dataset
+
 Download the dataset: 
 [[OneDrive](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ec0R2eTtC81Is0KvC5mbomsBw2oJ_oV7jahe1srpgVufcQ?e=aFIc7h)]
 [[Baidu Pan](https://pan.baidu.com/s/1ObvekJcPhtK9RUOC86vmNA) (8ko0)]
@@ -16,6 +18,8 @@ Download the dataset:
 Extract the files to `dataset` folder as follow:
 
 ![](imgs/folder.png)
+
+### Train
 
 Train the model on synthetic noisy images:
 
@@ -34,6 +38,10 @@ Train the model on synthetic noisy images and real noisy images:
 ```
 python train_all.py
 ```
+
+In order to reduce the time to read the images, it will save all the images in memory which requires large memory.
+
+### Test
 
 Test the trained model on DND dataset:
 
