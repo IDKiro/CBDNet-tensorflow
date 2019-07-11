@@ -85,6 +85,7 @@ if __name__ == '__main__':
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
 
+    save_vars = [v for v in tf.global_variables() if (v.name.split('/')[0] == 'fcn' or v.name.split('/')[0] == 'unet')]
     saver = tf.train.Saver()
     ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
     if ckpt:
@@ -98,14 +99,14 @@ if __name__ == '__main__':
         lastepoch = np.maximum(lastepoch, int(cur_epoch[0]))
 
     learning_rate = 1e-4
-    for epoch in range(lastepoch, 301):
+    for epoch in range(lastepoch, 201):
         losses = AverageMeter()
 
         if os.path.isdir(result_dir+"%04d"%epoch):
             continue    
         cnt=0
         
-        if epoch > 150:
+        if epoch > 100:
             learning_rate = 1e-5
 
         for ind in np.random.permutation(len(train_fns)):
@@ -133,7 +134,10 @@ if __name__ == '__main__':
                 cnt += 1
                 st = time.time()
 
-                _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
+                _, G_current, output = sess.run(
+                    [G_opt, G_loss, out_image], 
+                    feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate}
+                    )
                 output = np.clip(output, 0, 1)
                 losses.update(G_current)
 

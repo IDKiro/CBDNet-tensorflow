@@ -39,7 +39,7 @@ Train the model on synthetic noisy images and real noisy images:
 python train_all.py
 ```
 
-In order to reduce the time to read the images, it will save all the images in memory which requires large memory.
+**In order to reduce the time to read the images, it will save all the images in memory which requires large memory.**
 
 ### Test
 
@@ -47,6 +47,19 @@ Test the trained model on DND dataset:
 
 ```
 python test.py
+```
+
+Optional:
+
+```
+--ckpt {all,real,synthetic}     checkpoint type
+--cpu [CPU]                     Use CPU
+```
+
+Example:
+
+```
+python test.py --ckpt synthetic --cpu
 ```
 
 ## Network Structure

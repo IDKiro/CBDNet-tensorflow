@@ -128,7 +128,10 @@ if __name__ == '__main__':
                 cnt += 1
                 st = time.time()
 
-                _, G_current, output = sess.run([G_opt, G_loss, out_image], feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate})
+                _, G_current, output = sess.run(
+                    [G_opt, G_loss, out_image], 
+                    feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate}
+                    )
                 output = np.clip(output, 0, 1)
                 losses.update(G_current)
 

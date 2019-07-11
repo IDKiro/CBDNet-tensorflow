@@ -1,6 +1,7 @@
 from __future__ import division
 from __future__ import print_function
 import os, time, scipy.io
+import argparse
 import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import initializers
 import numpy as np
@@ -11,10 +12,20 @@ import cv2
 from utils import *
 from model import *
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+parser = argparse.ArgumentParser(description='Testing on DND dataset')
+parser.add_argument('--ckpt', type=str, default='all',
+                    choices=['all', 'real', 'synthetic'], help='checkpoint type')
+parser.add_argument('--cpu', nargs='?', const=1, help = 'Use CPU')
+args = parser.parse_args()
+
+if not args.cpu:
+    print('Using GPU!')
+else:
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"         # Inference on CPU
+    print('Using CPU!')
 
 input_dir = './dataset/test/'
-checkpoint_dir = './checkpoint/'
+checkpoint_dir = './checkpoint/' + args.ckpt
 result_dir = './result/'
 
 test_fns = glob.glob(input_dir + '*.bmp')
