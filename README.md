@@ -8,14 +8,14 @@ An unofficial implementation of CBDNet by Tensorflow.
 
 ## Quick Start
 
-### Dataset
+### Data
 
-Download the dataset: 
-[[OneDrive](https://zjueducn-my.sharepoint.com/:u:/g/personal/3140103306_zju_edu_cn/Ec0R2eTtC81Is0KvC5mbomsBw2oJ_oV7jahe1srpgVufcQ?e=aFIc7h)]
+Download the dataset and pre-trained model: 
+[[OneDrive](https://zjueducn-my.sharepoint.com/:f:/g/personal/3140103306_zju_edu_cn/EorD2T0_OHNEu_5rH6IpdzYB0l3SM9IfmyxWhHjyfVfFJA?e=YL4V99)]
 [[Baidu Pan](https://pan.baidu.com/s/1ObvekJcPhtK9RUOC86vmNA) (8ko0)]
 [[Mega](https://mega.nz/#F!uOZEVAYR!fbf-RCtnbUR7mlHZsgiL5g)]
 
-Extract the files to `dataset` folder as follow:
+Extract the files to `dataset` folder and `checkpoint` folder as follow:
 
 ![](imgs/folder.png)
 
