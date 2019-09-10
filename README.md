@@ -10,10 +10,10 @@ An unofficial implementation of CBDNet by Tensorflow.
 
 ### Data
 
-Download the dataset and pre-trained model: 
+~~Download the dataset and pre-trained model: 
 [[OneDrive](https://zjueducn-my.sharepoint.com/:f:/g/personal/3140103306_zju_edu_cn/EorD2T0_OHNEu_5rH6IpdzYB0l3SM9IfmyxWhHjyfVfFJA?e=YL4V99)]
 [[Baidu Pan](https://pan.baidu.com/s/1ObvekJcPhtK9RUOC86vmNA) (8ko0)]
-[[Mega](https://mega.nz/#F!uOZEVAYR!fbf-RCtnbUR7mlHZsgiL5g)]
+[[Mega](https://mega.nz/#F!uOZEVAYR!fbf-RCtnbUR7mlHZsgiL5g)]~~{Error}
 
 Extract the files to `dataset` folder and `checkpoint` folder as follow:
 

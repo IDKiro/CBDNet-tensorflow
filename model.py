@@ -41,12 +41,12 @@ def UNet(input):
 
         up4 = upsample_and_sum(conv3, conv2, 128, 256, scope='deconv4')
         conv4 = slim.conv2d(up4, 128, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv4_1')
-        conv4 = slim.conv2d(up4, 128, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv4_2')
-        conv4 = slim.conv2d(up4, 128, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv4_3')
+        conv4 = slim.conv2d(conv4, 128, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv4_2')
+        conv4 = slim.conv2d(conv4, 128, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv4_3')
 
         up5 = upsample_and_sum(conv4, conv1, 64, 128, scope='deconv5')
         conv5 = slim.conv2d(up5, 64, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv5_1')
-        conv5 = slim.conv2d(up5, 64, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv5_2')
+        conv5 = slim.conv2d(conv5, 64, [3, 3], rate=1, activation_fn=tf.nn.relu, scope='conv5_2')
 
         out = slim.conv2d(conv5, 3, [1, 1], rate=1, activation_fn=None, scope='conv6')
 
