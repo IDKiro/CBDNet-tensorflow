@@ -7,38 +7,8 @@ import numpy as np
 import glob
 import re
 
-from utils.noise import *
-from utils.common import *
+from utils import *
 from model import *
-
-
-def model_setting():
-    in_image = tf.placeholder(tf.float32, [None, None, None, 3])
-    gt_image = tf.placeholder(tf.float32, [None, None, None, 3])
-    gt_noise = tf.placeholder(tf.float32, [None, None, None, 3])
-
-    est_noise, out_image = CBDNet(in_image)
-
-    G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
-            0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
-
-    lr = tf.placeholder(tf.float32)
-    G_opt = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss)
-
-    return in_image, gt_image, gt_noise, est_noise, out_image, G_loss, lr, G_opt
-
-def DataAugmentation(temp_origin_img, temp_noise_img):
-    if np.random.randint(2, size=1)[0] == 1:
-        temp_origin_img = np.flip(temp_origin_img, axis=1)
-        temp_noise_img = np.flip(temp_noise_img, axis=1)
-    if np.random.randint(2, size=1)[0] == 1: 
-        temp_origin_img = np.flip(temp_origin_img, axis=0)
-        temp_noise_img = np.flip(temp_noise_img, axis=0)
-    if np.random.randint(2, size=1)[0] == 1:
-        temp_origin_img = np.transpose(temp_origin_img, (0, 2, 1, 3))
-        temp_noise_img = np.transpose(temp_noise_img, (0, 2, 1, 3))
-    
-    return temp_origin_img, temp_noise_img
 
 
 if __name__ == '__main__':
@@ -61,12 +31,10 @@ if __name__ == '__main__':
     # model setting
     in_image = tf.placeholder(tf.float32, [None, None, None, 3])
     gt_image = tf.placeholder(tf.float32, [None, None, None, 3])
-    gt_noise = tf.placeholder(tf.float32, [None, None, None, 3])
 
     est_noise, out_image = CBDNet(in_image)
 
     G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
-            0.5 * tf.reduce_mean(tf.multiply(tf.abs(0.3 - tf.nn.relu(gt_noise - est_noise)), tf.square(est_noise - gt_noise))) + \
             0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
 
     lr = tf.placeholder(tf.float32)
@@ -122,16 +90,24 @@ if __name__ == '__main__':
                 
                 temp_origin_img = origin_imgs[ind][:, yy:yy+ps_temp, xx:xx+ps_temp, :]
                 temp_noise_img = noise_imgs[ind][nind][:, yy:yy+ps_temp, xx:xx+ps_temp, :]
-                temp_origin_img, temp_noise_img = DataAugmentation(temp_origin_img, temp_noise_img)
-                noise_level = temp_noise_img - temp_origin_img
+                
+                if np.random.randint(2, size=1)[0] == 1:
+                    temp_origin_img = np.flip(temp_origin_img, axis=1)
+                    temp_noise_img = np.flip(temp_noise_img, axis=1)
+                if np.random.randint(2, size=1)[0] == 1: 
+                    temp_origin_img = np.flip(temp_origin_img, axis=0)
+                    temp_noise_img = np.flip(temp_noise_img, axis=0)
+                if np.random.randint(2, size=1)[0] == 1:
+                    temp_origin_img = np.transpose(temp_origin_img, (0, 2, 1, 3))
+                    temp_noise_img = np.transpose(temp_noise_img, (0, 2, 1, 3))
 
                 cnt += 1
                 st = time.time()
 
                 _, G_current, output = sess.run(
                     [G_opt, G_loss, out_image], 
-                    feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate}
-                    )
+                    feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, lr:learning_rate}
+                )
                 output = np.clip(output, 0, 1)
                 losses.update(G_current)
 

@@ -7,8 +7,7 @@ import numpy as np
 import glob
 import re
 
-from utils.noise import *
-from utils.common import *
+from utils import *
 from model import *
 
 
@@ -31,35 +30,6 @@ def load_CRF():
 
     return CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl
 
-def model_setting():
-    in_image = tf.placeholder(tf.float32, [None, None, None, 3])
-    gt_image = tf.placeholder(tf.float32, [None, None, None, 3])
-    gt_noise = tf.placeholder(tf.float32, [None, None, None, 3])
-
-    est_noise, out_image = CBDNet(in_image)
-
-    G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
-            0.5 * tf.reduce_mean(tf.multiply(tf.abs(0.3 - tf.nn.relu(gt_noise - est_noise)), tf.square(est_noise - gt_noise))) + \
-            0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
-
-    lr = tf.placeholder(tf.float32)
-    G_opt = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss)
-
-    return in_image, gt_image, gt_noise, est_noise, out_image, G_loss, lr, G_opt
-
-def DataAugmentation(temp_origin_img, temp_noise_img):
-    if np.random.randint(2, size=1)[0] == 1:
-        temp_origin_img = np.flip(temp_origin_img, axis=1)
-        temp_noise_img = np.flip(temp_noise_img, axis=1)
-    if np.random.randint(2, size=1)[0] == 1: 
-        temp_origin_img = np.flip(temp_origin_img, axis=0)
-        temp_noise_img = np.flip(temp_noise_img, axis=0)
-    if np.random.randint(2, size=1)[0] == 1:
-        temp_origin_img = np.transpose(temp_origin_img, (0, 2, 1, 3))
-        temp_noise_img = np.transpose(temp_noise_img, (0, 2, 1, 3))
-    
-    return temp_origin_img, temp_noise_img
-
 
 if __name__ == '__main__':
     input_dir = './dataset/synthetic/'
@@ -74,12 +44,26 @@ if __name__ == '__main__':
 
     origin_imgs = [None] * len(train_fns)
     noise_imgs = [None] * len(train_fns)
+    noise_levels = [None] * len(train_fns)
 
     for i in range(len(train_fns)):
         origin_imgs[i] = []
         noise_imgs[i] = []
+        noise_levels[i] = []
 
-    in_image, gt_image, gt_noise, est_noise, out_image, G_loss, lr, G_opt = model_setting()
+    # model setting
+    in_image = tf.placeholder(tf.float32, [None, None, None, 3])
+    gt_image = tf.placeholder(tf.float32, [None, None, None, 3])
+    gt_noise = tf.placeholder(tf.float32, [None, None, None, 3])
+
+    est_noise, out_image = CBDNet(in_image)
+
+    G_loss = tf.losses.mean_squared_error(gt_image, out_image) + \
+            0.5 * tf.reduce_mean(tf.multiply(tf.abs(0.3 - tf.nn.relu(gt_noise - est_noise)), tf.square(est_noise - gt_noise))) + \
+            0.05 * tf.reduce_mean(tf.square(tf.image.image_gradients(est_noise)))
+
+    lr = tf.placeholder(tf.float32)
+    G_opt = tf.train.AdamOptimizer(learning_rate=lr).minimize(G_loss)
 
     # load model
     sess = tf.Session()
@@ -119,25 +103,40 @@ if __name__ == '__main__':
             # re-add noise
             if epoch % save_freq == 0:
                 noise_imgs[ind] = []
+                noise_levels[ind] = []
 
             if len(noise_imgs[ind]) < 1:
-                noise_img = AddRealNoise(origin_imgs[ind][0, :, :, :], CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl)
+                noise_img, noise_level = AddRealNoise(origin_imgs[ind][0, :, :, :], CRF_para, iCRF_para, I_gl, B_gl, I_inv_gl, B_inv_gl)
                 noise_imgs[ind].append(np.expand_dims(noise_img, axis=0))
+                noise_levels[ind].append(np.expand_dims(noise_level, axis=0))
 
             st = time.time()
             for nind in np.random.permutation(len(noise_imgs[ind])):
                 temp_origin_img = origin_imgs[ind]
                 temp_noise_img = noise_imgs[ind][nind]
-                temp_origin_img, temp_noise_img = DataAugmentation(temp_origin_img, temp_noise_img)
-                noise_level = temp_noise_img - temp_origin_img
+                temp_noise_level = noise_levels[ind][nind]
+
+                # data augmentation
+                if np.random.randint(2, size=1)[0] == 1:
+                    temp_origin_img = np.flip(temp_origin_img, axis=1)
+                    temp_noise_img = np.flip(temp_noise_img, axis=1)
+                    temp_noise_level = np.flip(temp_noise_level, axis=1)
+                if np.random.randint(2, size=1)[0] == 1: 
+                    temp_origin_img = np.flip(temp_origin_img, axis=0)
+                    temp_noise_img = np.flip(temp_noise_img, axis=0)
+                    temp_noise_level = np.flip(temp_noise_level, axis=0)
+                if np.random.randint(2, size=1)[0] == 1:
+                    temp_origin_img = np.transpose(temp_origin_img, (0, 2, 1, 3))
+                    temp_noise_img = np.transpose(temp_noise_img, (0, 2, 1, 3))
+                    temp_noise_level = np.transpose(temp_noise_level, (0, 2, 1, 3))
 
                 cnt += 1
                 st = time.time()
 
                 _, G_current, output = sess.run(
                     [G_opt, G_loss, out_image], 
-                    feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:noise_level, lr:learning_rate}
-                    )
+                    feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:temp_noise_level, lr:learning_rate}
+                )
                 output = np.clip(output, 0, 1)
                 losses.update(G_current)
 

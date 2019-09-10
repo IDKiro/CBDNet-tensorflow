@@ -9,7 +9,6 @@ import glob
 import re
 import cv2
 
-from utils import *
 from model import *
 
 parser = argparse.ArgumentParser(description='Testing on DND dataset')
