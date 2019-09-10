@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
                     _, G_current, output = sess.run(
                         [G_opt, G_loss, out_image], 
-                        feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:0, lr:learning_rate, if_asym:0}
+                        feed_dict={in_image:temp_noise_img, gt_image:temp_origin_img, gt_noise:np.zeros_like(temp_origin_img), lr:learning_rate, if_asym:0}
                     )
                     output = np.clip(output, 0, 1)
                     losses.update(G_current)
